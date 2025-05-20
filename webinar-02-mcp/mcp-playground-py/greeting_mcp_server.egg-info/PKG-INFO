@@ -1,0 +1,66 @@
+Metadata-Version: 2.4
+Name: greeting-mcp-server
+Version: 0.1.0
+Summary: A simple MCP server implementation that provides a greeting tool
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: mcp
+Provides-Extra: dev
+Requires-Dist: mcp[cli]; extra == "dev"
+
+# Greeting MCP Server
+
+A simple Model Context Protocol (MCP) server implementation that provides a greeting tool using stdio transport.
+
+## Overview
+
+This server implements a single "greet" tool that takes a name parameter and returns a personalized greeting. The greeting will tell the person whether they are awesome (if their name starts with 'A') or not awesome (otherwise).
+
+## Installation
+
+### Option 1: Install dependencies only
+
+```
+pip install mcp
+```
+
+### Option 2: Install as a package
+
+```
+pip install -e .
+```
+
+## Usage
+
+### Run directly as a script
+
+```
+python greeting_server.py
+```
+
+### Run using MCP CLI (development mode)
+
+```
+mcp dev greeting_server.py
+```
+
+This enables testing with MCP Inspector:
+
+```
+mcp inspector
+```
+
+### Run as an installed package
+
+```
+greeting-server
+```
+
+## Integration with MCP clients
+
+This server uses stdio transport and can be integrated with any MCP client that supports this transport type, such as:
+
+- Claude Desktop
+- Other AI applications with MCP support
+
+When connected, the client can call the `greet` tool with a name parameter to receive a personalized greeting.

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "greeting-mcp-server"
+version = "0.1.0"
+description = "A simple MCP server implementation that provides a greeting tool"
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "mcp",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mcp[cli]",
+]
+
+[project.scripts]
+greeting-server = "greeting_server:mcp.run"

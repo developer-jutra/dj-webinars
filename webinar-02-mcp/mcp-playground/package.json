@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
+    "start:docs": "node docs-server.js",
     "start:log:verbose": "CONFIG_LOG_LEVEL=VERBOSE node server.js",
     "test": "npx @modelcontextprotocol/inspector node server.js",
-    "test:cli": "npx @modelcontextprotocol/inspector --cli node server.js --method tools/list"
+    "test:docs": "npx @modelcontextprotocol/inspector node docs-server.js",
+    "test:cli": "npx @modelcontextprotocol/inspector --cli node server.js --method tools/list",
+    "test:everything": "npx @modelcontextprotocol/inspector npx -y @modelcontextprotocol/server-everything"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.2",

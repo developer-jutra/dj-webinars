@@ -1,0 +1,2 @@
+[console_scripts]
+greeting-server = greeting_server:mcp.run

@@ -1,0 +1,24 @@
+{
+	"name": "public-apis-mcp",
+	"author": "Maciek Sitkowski <msitkowski94@gmail.com>",
+	"version": "0.0.10",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"start": "node build/index.mjs",
+		"build": "bun build src/index.ts --outfile build/index.mjs --target node",
+		"build:watch": "bun build --watch src/index.ts --outfile build/index.mjs --target node",
+		"inspector": "bunx @modelcontextprotocol/inspector build/index.mjs",
+		"inspector:debug": "DEBUG=true bunx @modelcontextprotocol/inspector build/index.mjs",
+		"update-categories": "bun src/update-categories.ts"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.11.1",
+		"zod": "^3.24.4"
+	},
+	"devDependencies": {
+		"@types/bun": "^1.2.13",
+		"@types/node": "^22.15.17",
+		"typescript": "^5.8.3"
+	}
+}

@@ -1,16 +1,19 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AddPersonnelModalComponent } from './components/add-personnel-modal.component';
 
 @Component({
   selector: 'app-personnel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AddPersonnelModalComponent],
   template: `
     <div class="container mx-auto px-4 py-8">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <h1 class="text-2xl font-bold">Personnel Management</h1>
         <div class="mt-4 md:mt-0">
-          <button class="btn btn-primary">
+          <button 
+            class="btn btn-primary"
+            (click)="showAddPersonnelModal = true">
             <span class="material-icons mr-1">person_add</span>
             Add Personnel
           </button>
@@ -132,9 +135,19 @@ import { CommonModule } from '@angular/common';
         </div>
       </div>
     </div>
+
+    <!-- Add Personnel Modal -->
+    @if (showAddPersonnelModal) {
+      <app-add-personnel-modal
+        (closeModal)="onCloseModal()"
+        (personnelAdded)="onPersonnelAdded($event)">
+      </app-add-personnel-modal>
+    }
   `
 })
 export class PersonnelComponent {
+  showAddPersonnelModal = false;
+
   personnel = [
     {
       id: 'EMP-001',
@@ -214,5 +227,28 @@ export class PersonnelComponent {
       default:
         return baseClasses;
     }
+  }
+
+  onCloseModal(): void {
+    this.showAddPersonnelModal = false;
+  }
+
+  onPersonnelAdded(personnelData: any): void {
+    // In a real application, you would send this data to your backend
+    console.log('New personnel added:', personnelData);
+    
+    // For demo purposes, add to the local array
+    const newPerson = {
+      id: personnelData.employeeId,
+      name: `${personnelData.firstName} ${personnelData.lastName}`,
+      role: personnelData.role,
+      status: 'Active',
+      contact: personnelData.email || 'N/A',
+      hireDate: new Date().toISOString().split('T')[0],
+      currentVehicle: 'None'
+    };
+    
+    this.personnel.unshift(newPerson);
+    this.showAddPersonnelModal = false;
   }
 }

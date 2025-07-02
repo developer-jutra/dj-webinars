@@ -441,16 +441,27 @@ export class AddPersonnelModalComponent {
 
     if (this.currentStep === this.steps.length - 1 && this.personnelForm.valid) {
       this.isSubmitting = true;
-      const newPersonnel: PersonnelDTO = {
+      
+      // Send all form data that matches server expectations
+      const newPersonnel = {
+        employeeId: this.personnelForm.value.employeeId,
         firstName: this.personnelForm.value.firstName,
         lastName: this.personnelForm.value.lastName,
-        role: this.personnelForm.value.role,
+        dateOfBirth: this.personnelForm.value.dateOfBirth,
+        phoneNumber: this.personnelForm.value.phoneNumber,
         email: this.personnelForm.value.email,
-        phone: this.personnelForm.value.phoneNumber,
+        role: this.personnelForm.value.role.toLowerCase(), // Server expects lowercase role
+        licenseNumber: this.personnelForm.value.licenseNumber,
+        licenseExpiration: this.personnelForm.value.licenseExpiration,
+        addressLine1: this.personnelForm.value.addressLine1,
+        addressLine2: this.personnelForm.value.addressLine2,
+        city: this.personnelForm.value.city,
+        state: this.personnelForm.value.state,
+        postalCode: this.personnelForm.value.postalCode,
       };
 
       this.personnelHttpService.addPersonnel(newPersonnel).subscribe({
-        next: (response: PersonnelDTO) => {
+        next: (response: any) => {
           console.log('Personnel added successfully:', response);
           this.personnelAdded.emit(response);
           this.showSuccessMessage = true;

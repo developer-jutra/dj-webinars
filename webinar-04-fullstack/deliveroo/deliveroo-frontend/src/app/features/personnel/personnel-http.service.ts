@@ -9,9 +9,13 @@ import { PersonnelDTO } from './personnel.model';
 export class PersonnelHttpService {
   private http = inject(HttpClient);
   
-  private apiUrl = 'http://localhost:3000'; // Adjust as needed for production
+  private apiUrl = (globalThis as any)?.['API_URL'] || 'http://localhost:3000';
 
-  addPersonnel(personnel: PersonnelDTO): Observable<PersonnelDTO> {
-    return this.http.post<PersonnelDTO>(`${this.apiUrl}/employees`, personnel);
+  getPersonnel(): Observable<PersonnelDTO[]> {
+    return this.http.get<PersonnelDTO[]>(`${this.apiUrl}/employees`);
+  }
+
+  addPersonnel(personnel: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/employees`, personnel);
   }
 }

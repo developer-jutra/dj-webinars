@@ -1,23 +1,15 @@
-// Vehicle type enum reflecting Postgres type
-export enum VehicleType {
-  Truck = 'truck',
-  Van = 'van',
-  Car = 'car',
-}
+// Vehicle type string literal type reflecting backend type
+export type VehicleType = 'truck' | 'van' | 'car';
 
-// Vehicle status enum reflecting Postgres type
-export enum VehicleStatus {
-  Available = 'available',
-  OnDelivery = 'on delivery',
-  Maintenance = 'maintenance',
-  Offline = 'offline',
-}
+// Vehicle status string literal type reflecting backend DTO
+export type VehicleStatus = 'Available' | 'On Delivery' | 'Maintenance' | 'Offline';
 
-// Vehicle DTO mirroring the vehicles table
-export interface Vehicle {
+// Vehicle DTO mirroring the updated structure
+export interface VehicleDTO {
   id: number;
   type: VehicleType;
-  license_plate: string;
+  licensePlate: string;
   status: VehicleStatus;
-  last_maintenance_date: string | null; // ISO date string or null
+  currentDriver: string;
+  lastMaintenance: string;
 } 

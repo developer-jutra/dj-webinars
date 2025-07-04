@@ -227,7 +227,7 @@ export class PersonnelComponent implements OnInit {
   }
 
   getPersonInitial(person: PersonnelDTO): string {
-    return person.firstName.charAt(0).toUpperCase();
+    return person.firstName?.charAt(0)?.toUpperCase() || '?';
   }
 
   onCloseModal(): void {

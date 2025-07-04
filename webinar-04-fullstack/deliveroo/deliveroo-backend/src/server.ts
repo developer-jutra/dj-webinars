@@ -4,8 +4,9 @@ import { invokeMemoryLeak } from './memory-leak';
 import { assertEnvVars } from './env';
 import pool from './database';
 import redisClient from './redis';
-import { getAllEmployees, getAllVehiclesWithDriver } from './queries';
+import { getAllEmployees, getAllVehiclesWithDriver, createEmployee } from './queries';
 import { mapVehicleRowsToDTOs } from './vehicle.model';
+import { mapEmployeeRowToDTO, EmployeeDTO, EmployeeRole } from './employee.model';
 import logger from './logger';
 
 const app = express();
@@ -76,7 +77,9 @@ app.get('/employees', async (req: Request, res: Response): Promise<void> => {
       return;
     }
     // If not in cache, get from PostgreSQL
-    const employees = await getAllEmployees();
+    const employeesRaw = await getAllEmployees();
+    // Map to DTO with camelCase
+    const employees = employeesRaw.map(mapEmployeeRowToDTO);
     // Store in Redis cache with expiration of 60 seconds
     await redisClient.set('employees', JSON.stringify(employees), { EX: 60 });
     res.json(employees);
@@ -107,25 +110,10 @@ interface EmployeeRequestBody {
 app.post('/employees', async (req: Request, res: Response): Promise<void> => {
   invokeMemoryLeak();
   try {
-    const {
-      employeeId,
-      firstName,
-      lastName,
-      dateOfBirth,
-      phoneNumber,
-      email,
-      role,
-      licenseNumber,
-      licenseExpiration,
-      addressLine1,
-      addressLine2,
-      city,
-      state,
-      postalCode,
-    }: EmployeeRequestBody = req.body;
+    const employeeData: EmployeeRequestBody = req.body;
 
     // Validate required fields
-    if (!firstName || !lastName || !email || !role) {
+    if (!employeeData.firstName || !employeeData.lastName || !employeeData.email || !employeeData.role) {
       logger.error('Missing required fields in employee creation request');
       res.status(400).json({ error: 'Missing required fields: firstName, lastName, email, role' });
       return;
@@ -133,49 +121,22 @@ app.post('/employees', async (req: Request, res: Response): Promise<void> => {
 
     // Validate role against allowed enum values
     const validRoles = ['driver', 'dispatcher', 'manager'];
-    if (!validRoles.includes(role)) {
-      logger.error(`Invalid role provided: ${role}. Must be one of: ${validRoles.join(', ')}`);
+    if (!validRoles.includes(employeeData.role.toLowerCase())) {
+      logger.error(`Invalid role provided: ${employeeData.role}. Must be one of: ${validRoles.join(', ')}`);
       res.status(400).json({ error: `Invalid role. Must be one of: ${validRoles.join(', ')}` });
       return;
     }
 
-    // Default status to 'active' as per database enum definition
-    const employeeStatus = 'active'; 
-
-    const result = await pool.query(
-      `INSERT INTO employees(
-        employee_id_number, first_name, last_name, date_of_birth, 
-        contact_phone_number, contact_email, employee_role, employee_status, 
-        driver_license_number, license_expiration_date, street_address_line1, 
-        street_address_line2, city, state_province, postal_code
-      ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
-      [
-        employeeId || null, // employee_id_number
-        firstName,
-        lastName,
-        dateOfBirth || null, // date_of_birth
-        phoneNumber || null, // contact_phone_number
-        email,
-        role, // employee_role
-        employeeStatus, // employee_status
-        licenseNumber || null, // driver_license_number
-        licenseExpiration || null, // license_expiration_date
-        addressLine1 || null, // street_address_line1
-        addressLine2 || null, // street_address_line2
-        city || null,
-        state || null, // state_province
-        postalCode || null,
-      ]
-    );
-    const newEmployee = result.rows[0];
+    const newEmployee = await createEmployee(employeeData);
+    const mappedEmployee = mapEmployeeRowToDTO(newEmployee);
     
-    logger.info('New employee added to DB:', newEmployee);
+    logger.info('New employee added to DB:', mappedEmployee);
     
     // Invalidate the employees cache
     await redisClient.del('employees');
     logger.info('Invalidated employees cache');
     
-    res.status(201).json({ message: 'Employee added successfully', employee: newEmployee });
+    res.status(201).json({ message: 'Employee added successfully', employee: mappedEmployee });
   } catch (err) {
     logger.error('Error adding employee: ' + err, { err });
     res.status(500).json({ error: 'Internal server error' });

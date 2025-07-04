@@ -71,7 +71,7 @@ app.get('/employees', async (req: Request, res: Response): Promise<void> => {
     // Try to get employees from Redis cache
     const cachedEmployees = await redisClient.get('employees');
     if (cachedEmployees) {
-      logger.info('Returning employees from cache');
+      logger.info('Returning employees from cache!');
       res.json(JSON.parse(cachedEmployees));
       return;
     }

@@ -13,7 +13,7 @@ export async function getAllVehiclesWithDriver() {
   const result = await pool.query(`
     SELECT
       v.*,
-      e.name AS driver_name
+      CONCAT(e.first_name, ' ', e.last_name) AS driver_name
     FROM vehicles v
     LEFT JOIN vehicle_employee ve ON v.id = ve.vehicle_id
     LEFT JOIN employees e ON ve.employee_id = e.id
@@ -39,7 +39,7 @@ export async function getDriversWithVehicles() {
   const result = await pool.query(`
     SELECT
       e.id AS driver_id,
-      e.name AS driver_name,
+      CONCAT(e.first_name, ' ', e.last_name) AS driver_name,
       v.license_plate AS vehicle,
       v.last_maintenance_date,
       ve.since_date AS assigned_since,
@@ -49,10 +49,10 @@ export async function getDriversWithVehicles() {
     JOIN vehicle_employee ve ON e.id = ve.employee_id
     JOIN vehicles v ON ve.vehicle_id = v.id
     WHERE
-      e.role = 'driver'
+      e.employee_role = 'driver'
       AND (ve.since_date <= CURRENT_DATE AND (ve.planned_leave_date IS NULL OR ve.planned_leave_date >= CURRENT_DATE))
     ORDER BY
-      e.name, ve.since_date;
+      CONCAT(e.first_name, ' ', e.last_name), ve.since_date;
   `);
   return result.rows;
 }
@@ -65,11 +65,11 @@ export async function getDriversWithoutVehicles() {
   const result = await pool.query(`
     SELECT
       e.id AS driver_id,
-      e.name AS driver_name
+      CONCAT(e.first_name, ' ', e.last_name) AS driver_name
     FROM
       employees e
     WHERE
-      e.role = 'driver'
+      e.employee_role = 'driver'
       AND NOT EXISTS (
         SELECT 1
         FROM vehicle_employee ve
@@ -77,7 +77,7 @@ export async function getDriversWithoutVehicles() {
           AND (ve.since_date <= CURRENT_DATE AND (ve.planned_leave_date IS NULL OR ve.planned_leave_date >= CURRENT_DATE))
       )
     ORDER BY
-      e.name;
+      CONCAT(e.first_name, ' ', e.last_name);
   `);
   return result.rows;
 }
@@ -89,7 +89,7 @@ export async function getTotalDrivers() {
   const result = await pool.query(`
     SELECT COUNT(*) AS total_drivers
     FROM employees
-    WHERE role = 'driver';
+    WHERE employee_role = 'driver';
   `);
   return Number(result.rows[0].total_drivers);
 }
@@ -102,7 +102,7 @@ export async function getDriversWithVehiclesCount() {
     SELECT COUNT(DISTINCT e.id) AS drivers_with_vehicles
     FROM employees e
     JOIN vehicle_employee ve ON e.id = ve.employee_id
-    WHERE e.role = 'driver'
+    WHERE e.employee_role = 'driver'
       AND (ve.since_date <= CURRENT_DATE AND (ve.planned_leave_date IS NULL OR ve.planned_leave_date >= CURRENT_DATE));
   `);
   return Number(result.rows[0].drivers_with_vehicles);
@@ -115,7 +115,7 @@ export async function getDriversWithoutVehiclesCount() {
   const result = await pool.query(`
     SELECT COUNT(*) AS drivers_without_vehicles
     FROM employees e
-    WHERE role = 'driver'
+    WHERE employee_role = 'driver'
       AND NOT EXISTS (
         SELECT 1
         FROM vehicle_employee ve

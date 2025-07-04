@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/vue-query'
 import { mockShipments } from '~/features/transportation/shipment-listing/shipment.mocks'
-import type { Shipment } from '~/features/transportation/shipment-listing/shipment.model'
+import type { EnhancedShipment } from '~/features/transportation/shipment-listing/shipment.mocks'
 
-export async function getShipmentDetails(id: string): Promise<Shipment> {
+export async function getShipmentDetails(id: string): Promise<EnhancedShipment> {
   await new Promise(resolve => setTimeout(resolve, 500))
   const shipment = mockShipments.find(s => s.id === id)
   if (!shipment) throw new Error('Shipment not found')

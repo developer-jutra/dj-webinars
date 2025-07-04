@@ -4,8 +4,9 @@ import { invokeMemoryLeak } from './memory-leak';
 import { assertEnvVars } from './env';
 import pool from './database';
 import redisClient from './redis';
-import { getAllEmployees, getAllVehiclesWithDriver } from './queries';
+import { getAllEmployees, getAllVehiclesWithDriver, createEmployee } from './queries';
 import { mapVehicleRowsToDTOs } from './vehicle.model';
+import { mapEmployeeRowToDTO, EmployeeDTO, EmployeeRole } from './employee.model';
 import logger from './logger';
 
 const app = express();
@@ -37,6 +38,7 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use(cors(corsOptions));
+app.use(express.json()); // Enable JSON body parsing
 
 // GET /vehicles endpoint
 app.get('/vehicles', async (req: Request, res: Response): Promise<void> => {
@@ -70,17 +72,73 @@ app.get('/employees', async (req: Request, res: Response): Promise<void> => {
     // Try to get employees from Redis cache
     const cachedEmployees = await redisClient.get('employees');
     if (cachedEmployees) {
-      logger.info('Returning employees from cache');
+      logger.info('Returning employees from cache!');
       res.json(JSON.parse(cachedEmployees));
       return;
     }
     // If not in cache, get from PostgreSQL
-    const employees = await getAllEmployees();
+    const employeesRaw = await getAllEmployees();
+    // Map to DTO with camelCase
+    const employees = employeesRaw.map(mapEmployeeRowToDTO);
     // Store in Redis cache with expiration of 60 seconds
     await redisClient.set('employees', JSON.stringify(employees), { EX: 60 });
     res.json(employees);
   } catch (err) {
     logger.error('Error fetching employees:', { err });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+interface EmployeeRequestBody {
+  employeeId?: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth?: string;
+  phoneNumber?: string;
+  email: string;
+  role: string;
+  licenseNumber?: string;
+  licenseExpiration?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+}
+
+// POST /employees endpoint to add a new employee
+app.post('/employees', async (req: Request, res: Response): Promise<void> => {
+  invokeMemoryLeak();
+  try {
+    const employeeData: EmployeeRequestBody = req.body;
+
+    // Validate required fields
+    if (!employeeData.firstName || !employeeData.lastName || !employeeData.email || !employeeData.role) {
+      logger.error('Missing required fields in employee creation request');
+      res.status(400).json({ error: 'Missing required fields: firstName, lastName, email, role' });
+      return;
+    }
+
+    // Validate role against allowed enum values
+    const validRoles = ['driver', 'dispatcher', 'manager'];
+    if (!validRoles.includes(employeeData.role.toLowerCase())) {
+      logger.error(`Invalid role provided: ${employeeData.role}. Must be one of: ${validRoles.join(', ')}`);
+      res.status(400).json({ error: `Invalid role. Must be one of: ${validRoles.join(', ')}` });
+      return;
+    }
+
+    const newEmployee = await createEmployee(employeeData);
+    const mappedEmployee = mapEmployeeRowToDTO(newEmployee);
+    
+    logger.info('New employee added to DB:', mappedEmployee);
+    
+    // Invalidate the employees cache
+    await redisClient.del('employees');
+    logger.info('Invalidated employees cache');
+    
+    res.status(201).json({ message: 'Employee added successfully', employee: mappedEmployee });
+  } catch (err) {
+    logger.error('Error adding employee: ' + err, { err });
     res.status(500).json({ error: 'Internal server error' });
   }
 });

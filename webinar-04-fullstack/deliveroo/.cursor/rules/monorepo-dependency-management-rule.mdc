@@ -10,7 +10,7 @@ This project contains two separate `package.json` files:
 - @deliveroo-frontend/package.json
 
 **When adding, removing, or updating dependencies:**
-- Always ensure you are in the correct directory (`deliveroo-backend` or `feliveroo-frontend`) before running any package manager commands (e.g., `npm install`, `yarn add`).
+- Always ensure you are in the correct directory (`deliveroo-backend` or `deliveroo-frontend`) before running any package manager commands (e.g., `npm install`, `yarn add`).
 - Only modify the `package.json` file relevant to the part of the project you are working on.
 - Do not make changes to both `package.json` files unless explicitly instructed to do so.
 

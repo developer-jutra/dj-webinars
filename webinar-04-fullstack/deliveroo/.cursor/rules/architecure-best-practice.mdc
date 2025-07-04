@@ -4,3 +4,5 @@ globs:
 alwaysApply: true
 ---
 1. Whenever using the data loaded from a REST API, first I want this interface to be created in a separate file that would have a `*.model.ts` extension and the filename and then it should have a `DTO` suffix in the name. So for instance, if my entity is called vehicle, then it should be stored in a `vehicle.model.ts` file and its name should be `VehicleDTO`.
+
+2. Avoid using simple console logs or standard outputs for logging - use designated loggers instead.

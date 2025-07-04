@@ -24,3 +24,5 @@ See docs: https://angular.dev/guide/templates/control-flow
 7. Whenever creating new Angular components and services, please make sure to create them using Angular CLI. Make sure that you walk into the Deliveroo dash frontend directory and then you run `ng generate service <service-name>` or `ng generate service <component-name>` or other types of the things that you can generate using ng CLI.
 
 8. Any HTTP requests should be performed by specialized Angular services. So for each entity, there should be a separate Angular service that includes only methods which perform the requests. For example, if there is a `Vehicle` entity, there should be a corresponding `VehicleHTTP.service.ts` file. Make sure that such service is created using NG CLI.
+
+9. Avoid creating tests, "spec" files, if there are not gonna be any meaningful tests inside.

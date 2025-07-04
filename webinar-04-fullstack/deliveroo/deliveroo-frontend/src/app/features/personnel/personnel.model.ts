@@ -1,5 +1,6 @@
 export interface PersonnelDTO {
-  id?: string;
+  id: string;
+  employeeIdNumber?: string;
   firstName: string;
   lastName: string;
   role: string;

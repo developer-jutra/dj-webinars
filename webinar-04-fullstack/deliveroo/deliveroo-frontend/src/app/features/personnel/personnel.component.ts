@@ -99,9 +99,9 @@ import { PersonnelDTO } from './personnel.model';
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-neutral-200">
-                @for (person of personnel(); track person.id) {
+                @for (person of personnel(); track person.employeeIdNumber) {
                   <tr class="hover:bg-neutral-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">{{ person.id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">{{ person.employeeIdNumber }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <div class="flex items-center">
                         <div class="flex-shrink-0 h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-700">

@@ -32,8 +32,6 @@ services:
       - REDIS_PASSWORD_FILE=/run/secrets/redis_password
     ports:
       - "3000:3000"
-    volumes:
-      - ./deliveroo-backend:/app
     depends_on:
       - postgres-app
     networks:
@@ -56,7 +54,7 @@ services:
       watch:
         - action: sync+restart
           path: ./deliveroo-backend
-          target: /deliveroo-backend
+          target: /app
           ignore:
             - node_modules/
         - action: rebuild
@@ -72,7 +70,6 @@ services:
     ports:
       - "4200:4200"
     volumes:
-      - ./deliveroo-frontend:/app
       - /app/node_modules
     networks:
       - app-network
@@ -88,7 +85,7 @@ services:
       watch:
         - action: sync+restart
           path: ./deliveroo-frontend
-          target: /deliveroo-frontend
+          target: /app
           ignore:
             - node_modules/
         - action: rebuild
